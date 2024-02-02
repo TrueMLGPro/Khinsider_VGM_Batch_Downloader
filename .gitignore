@@ -1,0 +1,5 @@
+.vscode/
+downloader/tests/
+__pycache__/
+
+main_og.py
