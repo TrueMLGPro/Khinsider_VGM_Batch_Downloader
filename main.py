@@ -87,7 +87,7 @@ def get_track_download_link(url: str):
 
 	return audio["src"]
 
-def download_song(url: str, filename: str, album_folder: str, live: Live, task_progress_bar: Progress):
+def download_song(url: str, filename: str, album_folder: str, task_progress_bar: Progress):
 	"""
 	Download the song from the given URL and save it with the specified filename.
 	"""
@@ -105,7 +105,7 @@ def download_song(url: str, filename: str, album_folder: str, live: Live, task_p
 
 	# Start the download
 	with open(download_path, "wb") as file:
-		task = task_progress_bar.add_task(f"[cyan]{filename}", filename=filename, total=file_size)
+		task = task_progress_bar.add_task(f"[cyan]{filename}", total=file_size)
 		for data in iter(partial(response.read, 32768), b""):
 			file.write(data)
 			task_progress_bar.update(task, advance=len(data))
@@ -117,7 +117,7 @@ def start_downloads(album_folder: str, download_tasks: list[Task], overall_task_
 	with Live(OUTER_PANEL, refresh_per_second=8, vertical_overflow=ELLIPSIS):
 		with ThreadPoolExecutor(max_workers=4) as pool:
 			# Download songs using executor.submit and as_completed
-			futures: list[Future] = [pool.submit(download_song, get_track_download_link(task.url), task.name, album_folder, Live(), TASK_PROGRESS_BAR) for task in download_tasks]
+			futures: list[Future] = [pool.submit(download_song, get_track_download_link(task.url), task.name, album_folder, TASK_PROGRESS_BAR) for task in download_tasks]
 
 			# Wait for all tasks to complete
 			for _ in as_completed(futures):
